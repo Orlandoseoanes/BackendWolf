@@ -59,7 +59,7 @@ router.get("/ProductoIndividual/:id", async (req, res) => {
             Tipo: doc.data().Tipo,
         };
 
-        res.status(200).json({producto:"CREADO EXITOSAMENTE"});
+        res.status(200).json({producto});
     } catch (error) {
         console.error("Error al obtener el producto:", error);
         res.status(500).send("Error al obtener el producto");
