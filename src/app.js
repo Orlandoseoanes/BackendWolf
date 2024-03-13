@@ -7,6 +7,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use(require("./router/Productos"));
+app.use(require('./router/Usuario'));
+app.use(require('./router/Cliente'));
 
 
 

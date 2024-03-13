@@ -17,7 +17,9 @@ router.get("/Productos/todos", async (req, res) => {
           Precio: doc.data().Precio,
           TallasColores: doc.data().TallasColores,
           Tipo: doc.data().Tipo,
-          Descuento: doc.data().Descuento
+          Tematica:doc.data().Tematica,
+          Stock: doc.data().Stock,
+          Categoria:doc.data().Categoria,
       }));
 
       res.status(200).json(Productos);
@@ -52,11 +54,13 @@ router.get("/ProductoIndividual/:id", async (req, res) => {
             NombreProducto: doc.data().NombreProducto,
             Precio: doc.data().Precio,
             TallasColores: doc.data().TallasColores.map(tc => ({
-                Talla: tc.Talla,
-                Stock: tc.Stock,
+                Talla: tc.Talla,   
                 Color: tc.Color
             })),
             Tipo: doc.data().Tipo,
+            Tematica:doc.data().Tematica,
+            Stock: doc.data().Stock,
+            Categoria:doc.data().Categoria,
         };
 
         res.status(200).json({producto});
@@ -105,10 +109,13 @@ const upload = multer({
         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
   
         // Guardar la URL de la imagen y crear un nuevo documento de producto en Firestore
-        const { Descripcion, Material, NombreProducto, Precio, TallasColores, Tipo } = req.body;
+        const { Descripcion, Material, NombreProducto, Precio, TallasColores, Tipo,Stock,Categoria,Tematica } = req.body;
+
+
+        
   
         // Validar que se proporcionen todos los campos necesarios
-        if (!Descripcion || !Material || !NombreProducto || !Precio || !TallasColores || !Tipo) {
+        if (!Descripcion || !Material || !NombreProducto || !Precio || !TallasColores || !Tipo || !Stock) {
           return res.status(400).send("Se requieren todos los campos para crear un nuevo producto.");
         }
    // Decodificar la cadena JSON de TallasColores en un array de objetos
@@ -118,10 +125,13 @@ const upload = multer({
           Descripcion,
           Material,
           NombreProducto,
-          Precio,
+          Precio: parseInt(Precio),
           TallasColores:tallasColoresArray,
           Tipo,
           Imagen: publicUrl, // Guardar la URL de la imagen
+          Stock:parseInt(Stock),
+          Categoria,
+          Tematica
         });
   
         // Responder con el ID del nuevo producto creado
