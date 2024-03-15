@@ -43,7 +43,7 @@ router.get("/ProductoIndividual/:id", async (req, res) => {
     const producto = {
       id: doc.id,
       Descripcion: doc.data().Descripcion,
-      Imagen: obtenerNombreArchivo(doc.data().Imagen), // Aplicando la lógica para obtener solo el nombre del archivo
+      Imagen: doc.data().Imagen, // Aplicando la lógica para obtener solo el nombre del archivo
       Material: doc.data().Material,
       NombreProducto: doc.data().NombreProducto,
       Precio: doc.data().Precio,
