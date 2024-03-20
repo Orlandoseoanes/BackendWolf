@@ -1,16 +1,23 @@
 const { Router } = require("express");
 const router = Router();
 const https = require('https');
+const { db } = require("../firebase");
 
 router.post("/Creacion/factura", async (req, res) => {
   try {
       const { Total, Productos } = req.body;
 
+
+        const NewfacturaId = await db.collection("Facturas").add({
+            Productos,
+            Total
+        });
+
       // Generar el mensaje para WhatsApp
-      let whatsappMessage = "*Bienvenido a BLACKWOLF*:\n\n";
+      let whatsappMessage = "*Bienvenido a BLACKWOLF*\n\n";
       whatsappMessage += "*Factura*:\n\n";
       whatsappMessage += "*Productos*:\n";
-      whatsappMessage += `*Total*: ${Total}\n\n`;
+
 
       // Construir la lista de productos
       Productos.forEach((producto, index) => {
@@ -18,8 +25,10 @@ router.post("/Creacion/factura", async (req, res) => {
           whatsappMessage += `   *Cantidad*: ${producto.Cantidad}\n`;
           whatsappMessage += `   *Color*: ${producto.Color}\n`;
           whatsappMessage += `   *Talla*: ${producto.Talla}\n`;
-          whatsappMessage += `   *Subtotal*: ${producto.Subtotal}\n\n`;
+          whatsappMessage += `   *Subtotal $*: ${producto.Subtotal}\n\n`;
       });
+
+      whatsappMessage += `*Total $*: ${Total}\n\n`;
 
       // Agregar mensaje final
       whatsappMessage += "En unos momentos su solicitud será atendida por uno de nuestros trabajadores.";
