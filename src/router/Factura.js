@@ -34,7 +34,7 @@ router.post("/Creacion/factura", async (req, res) => {
       whatsappMessage += "En unos momentos su solicitud será atendida por uno de nuestros trabajadores.";
 
       // Número de teléfono al que quieres enviar el mensaje
-      const phoneNumber = "+573222861882"; // Reemplaza esto con el número de teléfono deseado
+      const phoneNumber = "+573004327856"; // Reemplaza esto con el número de teléfono deseado
 
       // Generar el enlace de WhatsApp con el número de teléfono y el mensaje predefinido
       const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
