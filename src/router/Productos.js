@@ -213,7 +213,6 @@ router.get("/productos/:Categoria", async (req, res) => {
   }
 });
 
-
 router.get("/Productos/:Preciomin/:Preciomax",async(req,res)=>{
   try{
     const {Preciomin,Preciomax } = req.params; // Utiliza req.query para acceder a los parámetros de consulta
@@ -261,6 +260,26 @@ router.get("/producto/:Tematica", async (req, res) => {
   }
 });
 
+
+router.get("/Product/:Tipo",async(req,res)=>{
+  try{
+    const { Tipo } = req.params; // Utiliza req.query para acceder a los parámetros de consulta
+    const querySnapshot = await db.collection("Producto").where("Tipo", "==", Tipo).get();
+    
+    const productos = [];
+    querySnapshot.forEach((doc) => {
+      // Accede a los datos de cada documento que cumple con el filtro y agrégalo al array de productos
+      productos.push({ id: doc.id, data: doc.data() });
+    });
+
+    // Envía la lista de productos como respuesta al cliente
+    res.status(200).json(productos);
+
+  }catch(error){
+    console.error('Error al obtener documentos: ', error);
+    res.status(500).json({ error: 'Hubo un error al obtener los documentos.' });
+  }
+})
 
 
 
