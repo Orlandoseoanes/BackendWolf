@@ -40,7 +40,7 @@ router.post("/Creacion/factura", async (req, res) => {
       const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
       // Responder con el enlace del mensaje de WhatsApp en la respuesta HTTP
-      res.status(201).json({ whatsappLink });
+      res.status(201).json({NewfacturaId, whatsappLink });
       console.log("Factura creada con éxito");
 
   } catch (error) {
