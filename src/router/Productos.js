@@ -3,6 +3,9 @@ const { Router } = require("express");
 const router = Router();
 const multer = require("multer");
 const { storage } = require("../firebase"); // Importa el almacenamiento desde tu archivo firebase.js
+const sharp = require('sharp');
+const axios=require('axios')
+
 
 router.get("/Productos/todos", async (req, res) => {
   try {
@@ -184,13 +187,28 @@ router.get("/imagen/:id", async (req, res) => {
       expires: "12-12-2024", // Fecha de expiración del enlace
     });
 
-    // Redirige al enlace temporal para descargar la imagen
-    res.redirect(url);
+    // Descarga la imagen desde la URL
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer' // Establece el tipo de respuesta como un array de bytes
+    });
+
+    // Optimiza y convierte la imagen a formato WebP utilizando sharp
+    const imagenOptimizada = await sharp(response.data)
+      .webp() // Convierte la imagen a formato WebP
+      // Puedes agregar más opciones de optimización aquí, como cambiar el tamaño o aplicar filtros
+      .toBuffer();
+
+    // Establece el tipo de contenido de la respuesta como imagen WebP
+    res.set('Content-Type', 'image/webp');
+
+    // Envia la imagen optimizada en formato WebP al cliente
+    res.send(imagenOptimizada);
   } catch (error) {
     console.error("Error al obtener la imagen:", error);
     res.status(500).json({ error: "Error al obtener la imagen" });
   }
 });
+
 
 
 router.get("/productos/:Categoria", async (req, res) => {
