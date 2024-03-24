@@ -74,36 +74,35 @@ const upload = multer({
   },
 });
 
-router.post(
-  "/Producto/cargarFotoYProductoNuevo",
-  upload.array("fotos"), // Acepta múltiples archivos con el nombre "fotos"
-  async (req, res) => {
-    try {
-      if (!req.files || req.files.length === 0) {
-        return res
-          .status(400)
-          .json({ error: "No se proporcionaron fotos" });
-      }
+router.post("/Producto/cargarFotoYProductoNuevo", upload.array("fotos"), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No se proporcionaron fotos" });
+    }
 
-      const bucket = storage.bucket();
-      const urls = [];
+    const bucket = storage.bucket();
+    const urls = [];
 
-      req.files.forEach(file => {
-        const nombreArchivo = file.originalname;
-        const fileUpload = bucket.file(nombreArchivo);
-        const blobStream = fileUpload.createWriteStream({
-          metadata: {
-            contentType: file.mimetype,
-          }
-        });
+    for (const file of req.files) {
+      const nombreArchivo = file.originalname;
+      const fileUpload = bucket.file(nombreArchivo);
+      const blobStream = fileUpload.createWriteStream({
+        metadata: {
+          contentType: file.mimetype,
+        }
+      });
 
-        blobStream.on("error", (error) => {
-          console.error("Error al cargar el archivo:", error);
-          res.status(500).json({ error: "Error al cargar el archivo" });
-        });
+      blobStream.on("error", (error) => {
+        console.error("Error al cargar el archivo:", error);
+        res.status(500).json({ error: "Error al cargar el archivo" });
+      });
 
-        blobStream.on("finish", async () => {
+      blobStream.on("finish", async () => {
+        try {
           const publicUrl = `${fileUpload.name}`;
+          const optimizedImageBuffer = await optimizeImage(file.buffer); // Optimizar la imagen con Sharp
+          await uploadToStorage(optimizedImageBuffer, fileUpload); // Subir la imagen optimizada al almacenamiento
+
           urls.push(publicUrl);
 
           if (urls.length === req.files.length) {
@@ -155,18 +154,49 @@ router.post(
             // Responder con el ID del nuevo producto creado
             res.status(201).json({ id: newProductRef.id });
           }
-        });
-
-        blobStream.end(file.buffer); // Finaliza la carga del archivo con el contenido del buffer del archivo
+        } catch (error) {
+          console.error("Error al cargar la foto o agregar el producto:", error);
+          res.status(500).json({ error: "Error al cargar la foto o agregar el producto" });
+        }
       });
-    } catch (error) {
-      console.error("Error al cargar la foto o agregar el producto:", error);
-      res
-        .status(500)
-        .json({ error: "Error al cargar la foto o agregar el producto" });
+
+      blobStream.end(file.buffer); // Finaliza la carga del archivo con el contenido del buffer del archivo
     }
+  } catch (error) {
+    console.error("Error al cargar la foto o agregar el producto:", error);
+    res.status(500).json({ error: "Error al cargar la foto o agregar el producto" });
   }
-);
+});
+
+// Función para optimizar la imagen con Sharp y convertirla a formato WebP
+async function optimizeImage(buffer) {
+  return await sharp(buffer)
+    .webp() // Convertir la imagen a formato WebP
+    // Puedes agregar más opciones de optimización aquí, como cambiar el tamaño o aplicar filtros
+    .toBuffer();
+}
+
+// Función para subir la imagen optimizada al almacenamiento
+async function uploadToStorage(buffer, fileUpload) {
+  return new Promise((resolve, reject) => {
+    const blobStream = fileUpload.createWriteStream({
+      metadata: {
+        contentType: 'image/webp', // Establecer el tipo de contenido de la imagen como WebP
+      }
+    });
+
+    blobStream.on('error', (error) => {
+      console.error('Error al cargar el archivo optimizado:', error);
+      reject(error);
+    });
+
+    blobStream.on('finish', () => {
+      resolve();
+    });
+
+    blobStream.end(buffer);
+  });
+}
 
 router.get("/imagen/:id", async (req, res) => {
   try {
@@ -194,9 +224,11 @@ router.get("/imagen/:id", async (req, res) => {
 
     // Optimiza y convierte la imagen a formato WebP utilizando sharp
     const imagenOptimizada = await sharp(response.data)
-      .webp() // Convierte la imagen a formato WebP
-      // Puedes agregar más opciones de optimización aquí, como cambiar el tamaño o aplicar filtros
-      .toBuffer();
+  .resize({ width: originalWidth / 2 }) // Redimensionar la imagen a la mitad
+  .webp() // Convierte la imagen a formato WebP
+  // Puedes agregar más opciones de optimización aquí, como cambiar el tamaño o aplicar filtros
+  .toBuffer();
+      
 
     // Establece el tipo de contenido de la respuesta como imagen WebP
     res.set('Content-Type', 'image/webp');
