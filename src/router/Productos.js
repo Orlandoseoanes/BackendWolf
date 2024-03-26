@@ -224,8 +224,8 @@ router.get("/imagen/:id", async (req, res) => {
 
     // Optimiza y convierte la imagen a formato WebP utilizando sharp
     const imagenOptimizada = await sharp(response.data)
-    .resize({ width: 400 }) // Redimensionar la imagen a 400 píxeles de ancho
-    .webp({ quality: 70 } /* Calidad de la imagen */)
+    .resize({ width: 700 }) // Redimensionar la imagen a 400 píxeles de ancho
+    .webp({ quality: 80 } /* Calidad de la imagen */)
     .toBuffer();
     
       
