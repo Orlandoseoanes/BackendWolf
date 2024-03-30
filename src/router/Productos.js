@@ -7,65 +7,6 @@ const sharp = require('sharp');
 const axios=require('axios')
 
 
-router.get("/Productos/todos", async (req, res) => {
-  try {
-    const querySnapshot = await db.collection("Producto").get();
-
-    const Productos = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      Descripcion: doc.data().Descripcion,
-      Imagen: doc.data().Imagen, // Aplicando la lógica para obtener solo el nombre del archivo
-      Material: doc.data().Material,
-      NombreProducto: doc.data().NombreProducto,
-      Precio: doc.data().Precio,
-      TallasColores: doc.data().TallasColores,
-      Tipo: doc.data().Tipo,
-      Tematica: doc.data().Tematica,
-      Stock: doc.data().Stock,
-      Categoria: doc.data().Categoria,
-    }));
-
-    res.status(200).json(Productos);
-  } catch (error) {
-    console.error("Error al obtener productos:", error);
-    res.status(500).send("Error al obtener productos");
-  }
-});
-
-
-router.get("/ProductoIndividual/:id", async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const productRef = db.collection("Producto").doc(productId);
-    const doc = await productRef.get();
-
-    if (!doc.exists) {
-      return res.status(404).send("Producto no encontrado");
-    }
-
-    const producto = {
-      id: doc.id,
-      Descripcion: doc.data().Descripcion,
-      Imagen: doc.data().Imagen, // Aplicando la lógica para obtener solo el nombre del archivo
-      Material: doc.data().Material,
-      NombreProducto: doc.data().NombreProducto,
-      Precio: doc.data().Precio,
-      TallasColores: doc.data().TallasColores.map((tc) => ({
-        Talla: tc.Talla,
-        Color: tc.Color,
-      })),
-      Tipo: doc.data().Tipo,
-      Tematica: doc.data().Tematica,
-      Stock: doc.data().Stock,
-      Categoria: doc.data().Categoria,
-    };
-
-    res.status(200).json({ producto });
-  } catch (error) {
-    console.error("Error al obtener el producto:", error);
-    res.status(500).send("Error al obtener el producto");
-  }
-});
 
 const upload = multer({
   storage: multer.memoryStorage(), // Almacenamiento en memoria para manejar archivos temporales
@@ -241,6 +182,70 @@ router.get("/imagen/:id", async (req, res) => {
   }
 });
 
+
+router.get("/Productos/todos", async (req, res) => {
+  try {
+    const querySnapshot = await db.collection("Producto").get();
+
+    const Productos = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      data: {
+        Descripcion: doc.data().Descripcion,
+        Imagen: doc.data().Imagen, // Aplicando la lógica para obtener solo el nombre del archivo
+        Material: doc.data().Material,
+        NombreProducto: doc.data().NombreProducto,
+        Precio: doc.data().Precio,
+        TallasColores: doc.data().TallasColores,
+        Tipo: doc.data().Tipo,
+        Tematica: doc.data().Tematica,
+        Stock: doc.data().Stock,
+        Categoria: doc.data().Categoria,
+      }
+    }));
+
+    res.status(200).json(Productos);
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).send("Error al obtener productos");
+  }
+});
+
+
+router.get("/ProductoIndividual/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const productRef = db.collection("Producto").doc(productId);
+    const doc = await productRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).send("Producto no encontrado");
+    }
+
+    const producto = {
+      id: doc.id,
+      data:{
+        Descripcion: doc.data().Descripcion,
+      Imagen: doc.data().Imagen, // Aplicando la lógica para obtener solo el nombre del archivo
+      Material: doc.data().Material,
+      NombreProducto: doc.data().NombreProducto,
+      Precio: doc.data().Precio,
+      TallasColores: doc.data().TallasColores.map((tc) => ({
+        Talla: tc.Talla,
+        Color: tc.Color,
+      })),
+      Tipo: doc.data().Tipo,
+      Tematica: doc.data().Tematica,
+      Stock: doc.data().Stock,
+      Categoria: doc.data().Categoria,
+      }
+    };
+
+    res.status(200).json(producto);
+  } catch (error) {
+    console.error("Error al obtener el producto:", error);
+    res.status(500).send("Error al obtener el producto");
+  }
+});
 
 
 router.get("/productos/:Categoria", async (req, res) => {

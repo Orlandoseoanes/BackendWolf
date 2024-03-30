@@ -25,13 +25,14 @@ router.post("/Creacion/factura", async (req, res) => {
           whatsappMessage += `   *Cantidad*: ${producto.Cantidad}\n`;
           whatsappMessage += `   *Color*: ${producto.Color}\n`;
           whatsappMessage += `   *Talla*: ${producto.Talla}\n`;
+          whatsappMessage += `   *Material* : ${producto.Material}\n `
           whatsappMessage += `   *Subtotal $*: ${producto.Subtotal}\n\n`;
       });
 
       whatsappMessage += `*Total $*: ${Total}\n\n`;
 
       // Agregar mensaje final
-      whatsappMessage += "En unos momentos su solicitud será atendida por uno de nuestros trabajadores.";
+      whatsappMessage += "*En unos momentos su solicitud será atendida por uno de nuestros asesores .*";
 
       // Número de teléfono al que quieres enviar el mensaje
       const phoneNumber = "+573004327856"; // Reemplaza esto con el número de teléfono deseado
