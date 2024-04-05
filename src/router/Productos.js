@@ -337,6 +337,26 @@ router.get("/Product/:Tipo",async(req,res)=>{
 })
 
 
+router.get("/Produ/:Tipo/:Categoria", async (req, res) => {
+  try {
+    const { Tipo, Categoria } = req.params;
+    const querySnapshot = await db.collection("Producto").where("Tipo", "==", Tipo).where("Categoria", "==", Categoria).get();
+
+    const productos = [];
+    querySnapshot.forEach((doc) => {
+      productos.push({ id: doc.id, data: doc.data() });
+    });
+
+    res.status(200).json(productos);
+
+  } catch (error) {
+    console.error('Error al obtener documentos: ', error);
+    res.status(500).json({ error: 'Hubo un error al obtener los documentos.' });
+  }
+});
+
+
+
 
 
 
